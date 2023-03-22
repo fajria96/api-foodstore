@@ -21,7 +21,7 @@ const productSchema = Schema(
 
     image_url: String,
   },
-  { timestamps: true }
+  { timestamps: true } //berfungsi untuk menambah createdAt dan updatedAt
 );
 
 module.exports = model("Product", productSchema);

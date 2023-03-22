@@ -3,6 +3,7 @@ const fs = require("fs");
 const config = require("../config");
 const Product = require("./model");
 
+//POST upload produk
 const store = async (req, res, next) => {
   try {
     let payload = req.body;
@@ -60,6 +61,20 @@ const store = async (req, res, next) => {
   }
 };
 
+//GET menampilkan produk
+const index = async (req, res, next) => {
+  try {
+    let { skip = 0, limit = 10 } = req.query;
+    let product = await Product.find()
+      .skip(parseInt(skip))
+      .limit(parseInt(limit));
+    return res.json(product);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   store,
+  index,
 };
