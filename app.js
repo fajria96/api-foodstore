@@ -22,10 +22,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use("/auth", authRoute);
 app.use("/api", productRoute);
 app.use("/api", categoryRoute);
 app.use("/api", tagRoute);
-app.use("/auth", authRoute);
 
 //home
 app.use("/", function (req, res) {

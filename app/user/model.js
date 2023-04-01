@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
-//instal mongoose-sequence untuk plugin auto inc
 const AutoIncrement = require("mongoose-sequence")(mongoose);
-//install bcrypt untuk hashing password
 const bcrypt = require("bcrypt");
 
 let userSchema = Schema(
@@ -24,7 +22,7 @@ let userSchema = Schema(
       maxlength: [255, "Panjang email maksimal 255 karakter"],
     },
 
-    passsword: {
+    password: {
       type: String,
       required: [true, "Password harus diisi"],
       maxlength: [255, "Panjang password maksimal 255 karakter"],
@@ -41,42 +39,34 @@ let userSchema = Schema(
   { timestamps: true }
 );
 
-//plugin untuk validasi email
-userSchema.path("email").validate(
-  function (value) {
-    const EMAIL_RE = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-    return EMAIL_RE.test(value);
-  },
-  (attr) => `${attr.value} harus menggunakan email yang valid`
-);
+//plugin validasi email
+// userSchema.path("email").validate(
+//   function (value) {
+//     const EMAIL_RE = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+//     return EMAIL_RE.test(value);
+//   },
+//   (attr) => `${attr.value} harus menggunakan email yang valid`
+// );
 
-//validasi email sudah terdaftar atau belum
-userSchema.path("email").validate(
-  async function (value) {
-    try {
-      // (1) Lakukan pencarian ke _collection_ User berdasarkan email
-      const count = await this.model("User").count({ email: value });
-      // (2) Jika user ditemukan maka mengembalikan nilai "false"
-      // Jika "false" maka validasi gagal
-      // Jika "true" maka validasi berhasil
-      return !count;
-    } catch (err) {
-      throw err;
-    }
-  },
-  (attr) => `${attr.value} sudah terdaftar`
-);
+// userSchema.path("email").validate(
+//   async function (value) {
+//     try {
+//       const count = await this.model("User").count({ email: value });
+//       return !count;
+//     } catch (err) {
+//       throw err;
+//     }
+//   },
+//   (attr) => `${attr.value} sudah terdaftar`
+// );
 
-// Membuat fitur hashing apabila user terdaftar password akan hashing
-const HASH_ROUND = 10;
-// Hook sebelum disimpan jalankan function yg isinya mengembalikan callback next
-// Tidak memakai arrow function agar "this" tdk menangkap secara global
-userSchema.pre("save", function (next) {
-  this.passsword = bcrypt.hashSync(this.passsword, HASH_ROUND);
-  next();
-});
+// hashing
+// const HASH_ROUND = 10;
+// userSchema.pre("save", function (next) {
+//   this.password = bcrypt.hashSync(this.password, HASH_ROUND);
+//   next();
+// });
 
-// Plugin untuk auto increment customer_id
 userSchema.plugin(AutoIncrement, { inc_field: "customer_id" });
 
 module.exports = model("User", userSchema);
