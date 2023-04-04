@@ -4,35 +4,23 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const config = require("../config");
 
-const register = async (req, res, next) => {
-  //   try {
-  //     const payload = req.body;
-  //     let user = new User(payload);
-  //     await user.save();
-  //     return res.json(user);
-  //   } catch (err) {
-  //     if (err && err.name === "ValidationError") {
-  //       return res.json({
-  //         error: 1,
-  //         message: err.message,
-  //         fields: err.errors,
-  //       });
-  //     }
-  //     next(err);
-  //   }
-  // };
+// const validateEmail = (email) => {
+//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//   return emailRegex.test(email);
+// };
+// const hashPassword = await bcrypt.hash(password, 10);
 
+exports.register = async (req, res, next) => {
+  const { full_name, customer_id, email, password, role } = req.body;
   try {
-    const { full_name, email, password, role } = req.body;
-    const hashPassword = await bcrypt.hash(password, 10);
-    const user = new User({
-      full_name: full_name,
-      email: email,
-      password: hashPassword,
-      role: role,
+    const user = await User.create({
+      full_name,
+      customer_id,
+      email,
+      password,
+      role,
     });
-    user.save();
-    return res.json(user);
+    res.status(201).json({ success: true, user });
   } catch (err) {
     if (err && err.name === "ValidationError") {
       return res.json({
@@ -41,11 +29,10 @@ const register = async (req, res, next) => {
         fields: err.errors,
       });
     }
-    next(err);
   }
 };
 
-const localStrategy = async (email, password, done) => {
+exports.localStrategy = async (email, password, done) => {
   try {
     let user = await User.findOne({ email }).select(
       "-__v -createdAt -updatedAt -cart_items -token"
@@ -61,7 +48,7 @@ const localStrategy = async (email, password, done) => {
   done();
 };
 
-const login = (req, res, next) => {
+exports.login = (req, res, next) => {
   passport.authenticate("local", async function (err, user) {
     if (err) return next(err);
 
@@ -78,5 +65,3 @@ const login = (req, res, next) => {
     });
   })(req, res, next);
 };
-
-module.exports = { register, localStrategy, login };

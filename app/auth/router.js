@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const authController = require("./controller");
 const passport = require("passport");
+// const { runValidation, validationDaftar } = require("../../validation");
 const localStrategy = require("passport-local").Strategy;
 
 passport.use(
