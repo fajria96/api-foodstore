@@ -2,18 +2,16 @@ const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 const AutoIncrement = require("mongoose-sequence")(mongoose);
 const bcrypt = require("bcrypt");
+// const sequencing = require("../config/sequencing");
 
-let userSchema = new mongoose.Schema(
+let userSchema = mongoose.Schema(
   {
+    customer_id: { type: Number, unique: true },
     full_name: {
       type: String,
       required: [true, "Nama harus diisi"],
       maxlength: [255, "Panjang nama harus antara 3 - 255 karakter"],
       minlength: [3, "Panjang nama harus antara 3 - 255 karakter"],
-    },
-
-    customer_id: {
-      type: Number,
     },
 
     email: {
@@ -27,7 +25,6 @@ let userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password harus diisi"],
       maxlength: [255, "Panjang password maksimal 255 karakter"],
-      select: false,
     },
 
     role: {
@@ -41,27 +38,23 @@ let userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// userSchema.path("email").validate(
-//   async function (value) {
-//     try {
-//       const count = await this.model("User").count({ email: value });
-//       return !count;
-//     } catch (err) {
-//       throw err;
-//     }
-//   },
-//   (attr) => `${attr.value} Sudah terdaftar`
-// );
+// userSchema.pre("save", function (next) {
+//   var doc = this;
+//   mongoose
+//     .model("User")
+//     .updateOne(
+//       {},
+//       { $inc: { customer_id: 1 } },
+//       { sort: { customer_id: -1 }, new: true },
+//       function (err, result) {
+//         if (err) throw err;
+//         doc.customer_id = result.customer_id + 1;
+//         next();
+//       }
+//     );
+// });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
-userSchema.plugin(AutoIncrement, { inc_field: "customer_id" });
+// userSchema.plugin(AutoIncrement, { inc_field: "customer_id" });
+// userSchema.plugin(AutoIncrement);
 
 module.exports = model("User", userSchema);

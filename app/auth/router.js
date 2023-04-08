@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const authController = require("./controller");
 const passport = require("passport");
-// const { runValidation, validationDaftar } = require("../../validation");
 const localStrategy = require("passport-local").Strategy;
 
 passport.use(
@@ -9,5 +8,7 @@ passport.use(
 );
 router.post("/register", authController.register);
 router.post("/login", authController.login);
+router.post("/logout", authController.logout);
+router.get("/me", authController.me);
 
 module.exports = router;
